@@ -54,10 +54,13 @@ Example of running 2 threads, no web interface, and Wget binding of IP address:
 
 Distribution-specific setup
 -------------------------
+
+**This project requires `[lxml](http://lxml.de/installation.html)`.**
+
 ### For Debian/Ubuntu:
 
     adduser --system --group --shell /bin/bash archiveteam
-    apt-get install -y git-core libgnutls-dev lua5.1 liblua5.1-0 liblua5.1-0-dev screen python-dev python-pip bzip2 zlib1g-dev
+    apt-get install -y git-core libgnutls-dev lua5.1 liblua5.1-0 liblua5.1-0-dev screen python-dev python-pip bzip2 zlib1g-dev python-lxml
     pip install seesaw
     su -c "cd /home/archiveteam; git clone https://github.com/MithrandirAgain/myopera-grab.git; cd myopera-grab; ./get-wget-lua.sh" archiveteam
     screen su -c "cd /home/archiveteam/myopera-grab/; run-pipeline pipeline.py --concurrent 2 --address '127.0.0.1' YOURNICKHERE" archiveteam
@@ -67,13 +70,13 @@ Distribution-specific setup
 
 Ensure that you have the CentOS equivalent of bzip2 installed as well. You might need the EPEL repository to be enabled.
 
-    yum -y install gnutls-devel lua-devel python-pip zlib-devel
+    yum -y install gnutls-devel lua-devel python-pip zlib-devel python-lxml
     pip install seesaw
     [... pretty much the same as above ...]
 
 ### For openSUSE:
 
-    zypper install liblua5_1 lua51 lua51-devel screen python-pip libgnutls-devel bzip2 python-devel gcc make
+    zypper install liblua5_1 lua51 lua51-devel screen python-pip libgnutls-devel bzip2 python-devel gcc make python-lxml
     pip install seesaw
     [... pretty much the same as above ...]
 
@@ -81,7 +84,7 @@ Ensure that you have the CentOS equivalent of bzip2 installed as well. You might
 
 You need Homebrew. Ensure that you have the OS X equivalent of bzip2 installed as well.
 
-    brew install python lua gnutls
+    brew install python lua gnutls py27-lxml
     pip install seesaw
     [... pretty much the same as above ...]
 
