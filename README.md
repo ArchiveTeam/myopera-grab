@@ -1,7 +1,5 @@
 myopera-grab
-=========
-
-**This isn't active/ready yet, please wait to run!**
+============
 
 More information about the archiving project can be found on the ArchiveTeam wiki: http://www.archiveteam.org/index.php?title=My_Opera
 
