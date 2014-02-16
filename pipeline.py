@@ -314,7 +314,7 @@ pipeline = Pipeline(
         name="shared:rsync_threads", title="Rsync threads",
         description="The maximum number of concurrent uploads."),
         UploadWithTracker(
-            "http://'tracker.archiveteam.org'/%s" % TRACKER_ID,
+            "http://%s/%s" % (TRACKER_HOST, TRACKER_ID),
             downloader=downloader,
             version=VERSION,
             files=[
