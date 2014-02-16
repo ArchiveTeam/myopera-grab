@@ -3,13 +3,31 @@ local url_count = 0
 
 wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_parsed, iri, verdict, reason)
   local url = urlpos["url"]["url"]
-
-  -- Don't go to url templates
-  if string.match(url, "{{") then
+  -- Doesn't work for UTF-8 chars:
+  -- local username = string.match(start_url_parsed["url"], 'my.opera.com/(.+)/$')
+  
+  -- Skip closure announcement.
+  if url == "http://my.opera.com/chooseopera/blog/2013/10/31/important-announcement-about-your-my-opera-account" then
     return false
+  -- Skip common resources (images, CSS, etc)
+  elseif string.match(url, "static%.myopera%.com/community") then
+    return false
+  -- Skip album slideshows
+  elseif string.match(url, "/albums/slideshow/") then
+    return false
+  elseif string.match(url, "%w/xml/%w") then
+    return false
+  elseif string.match(url, "my%.opera%.com/community/%w") then
+    return false
+  elseif string.match(url, "blogs%.opera%.com") then
+    return false
+  elseif string.match(url, "/index%.dml/tag/") then
+    return false
+  elseif string.match(url, "/archive/monthly/%?") then
+    return false
+  else
+    return verdict
   end
-
-  return verdict
 end
 
 
@@ -38,9 +56,8 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     -- We're okay; sleep a bit (if we have to) and continue
     local sleep_time = 1.0 * (math.random(75, 125) / 100.0)
 
-    if string.match(url["url"], "files.myopera.com%.com") then
+    if string.match(url["url"], ".%.myopera%.com") then
       -- We should be able to go fast on images since that's what a web browser does
-      -- TODO: Add static.myopera.com (how?)
       sleep_time = 0
     end
 
