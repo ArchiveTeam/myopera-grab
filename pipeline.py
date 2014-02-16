@@ -9,6 +9,7 @@ import urllib2
 import gzip
 import fnmatch
 import re
+import sys
 from seesaw.config import NumberConfigValue, realize
 from seesaw.externalprocess import WgetDownload
 from seesaw.item import ItemInterpolation, ItemValue
@@ -20,9 +21,14 @@ from seesaw.tracker import (GetItemFromTracker, SendDoneToTracker,
 from seesaw.util import find_executable
 from cStringIO import StringIO
 from urlparse import urljoin
-from urllib import quote
+from urllib import quote, unquote
 from json import loads
 from lxml import etree
+
+# This forces subprocess to allow utf-8 usernames
+# http://stackoverflow.com/q/492483
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 # check the seesaw version
 if StrictVersion(seesaw.__version__) < StrictVersion("0.1.4"):
@@ -58,7 +64,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140215.02"
+VERSION = "20140215.03"
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27'
 TRACKER_ID = 'myopera'
 HEADERS = {
@@ -126,8 +132,8 @@ def blogpostlist(useruri):
         links = tree.xpath('//div[@id="arc"]//li//a/@href')
         # Getting the links for all the archive page only!
         for link in links:
-            postlist.append(urljoin(useruri, link))
-    print "Downloading {0} blog posts".format(str(len(postlist)))
+            postlist.append(unquote(urljoin(useruri, link)))
+    #print "Downloading {0} blog posts".format(str(len(postlist)))
     return postlist
 
 def photolist(useruri):
@@ -147,6 +153,7 @@ def photolist(useruri):
         maxAlbums = 1
     else:
         maxAlbums = int(re.search(r"\d+ of (\d+)", maxAlbums[0], re.DOTALL).group(1))
+
     # Find albums links on the first page
     albumlist.extend([urljoin("http://my.opera.com", link.values()[0])\
      for link in tree.xpath('//div[@class="albuminfo"]/a[@href]')])
@@ -158,15 +165,19 @@ def photolist(useruri):
         tree = etree.HTML(archivehtml, parser=myparser)
         albumlist.extend([urljoin("http://my.opera.com", link.values()[0])\
          for link in tree.xpath('//div[@class="albuminfo"]/a[@href]')])
+
     # Use OEmbed to get image links
     # As Opera allows only 100 images per page on the album pages,
     # this is much easier and potentially faster than crawling.
     for album in albumlist:
         picsjson = download_url('http://my.opera.com/service/oembed/?url={0}'.format(\
          quote(album)), HEADERS)
-        #print "Album {0} has {1}".format(album, str(len(loads(picsjson)['images']['image'])))
-        piclist.extend(loads(picsjson)['images']['image'])
-    print "Downloading {0} pictures".format(str(len(piclist)))
+        # My Opera's OEmbed API screws up UTF-8, so get just the relative pic links
+        # and append them to useruri
+        linklist = [urljoin(useruri, re.search(r"/albums/(.+)$", link, re.DOTALL).group(1))\
+                  for link in loads(picsjson)['images']['image']]
+        piclist.extend(linklist)
+    #print "Downloading {0} pictures".format(str(len(piclist)))
     return piclist
 
 ###########################################################################
