@@ -58,7 +58,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140215.01"
+VERSION = "20140215.02"
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27'
 TRACKER_ID = 'myopera'
 HEADERS = {
@@ -66,6 +66,7 @@ HEADERS = {
         'Accept-encoding': 'gzip'
 }
 TRACKER_HOST = 'tracker.archiveteam.org'
+#TRACKER_HOST = 'localhost:9080'
 
 def sleep(seconds=0.75):
     sleep_time = seconds * random.uniform(0.5, 2.0)
@@ -259,10 +260,8 @@ class WgetArgFactory(object):
     '''
     def realize(self, item):
         baseURL = "http://my.opera.com/{0}".format(item['url_list'][0])
-        #return realize(wget_args, item) + [baseURL+"/archive/"] +\
-        # [baseURL+"/albums/"] + [baseURL+"/links/"]
-        allLinks = blogpostlist(baseURL+"/archive/") +\
-         photolist(baseURL+"/albums/") + [baseURL + "/links/"]
+        allLinks = blogpostlist(baseURL+"/archive/") + photolist(baseURL+"/albums/") +\
+                   [baseURL + "/about/"] + [baseURL + "/links/"] + [baseURL + "/favorites/"]
         # Put all links into one file for wget
         open("%(item_dir)s/%(warc_file_base)s_links.txt" % item, "w").write(\
          '\n'.join(allLinks))
@@ -317,7 +316,7 @@ pipeline = Pipeline(
                 "--partial-dir", ".rsync-tmp"
             ]
             ),
-    )
+    ),
     SendDoneToTracker(
         tracker_url="http://%s/%s" % (TRACKER_HOST, TRACKER_ID),
         stats=ItemValue("stats")

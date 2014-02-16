@@ -1,5 +1,5 @@
 local url_count = 0
-
+local dupe_urls = {}
 
 wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_parsed, iri, verdict, reason)
   local url = urlpos["url"]["url"]
@@ -10,8 +10,18 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
   if url == "http://my.opera.com/chooseopera/blog/2013/10/31/important-announcement-about-your-my-opera-account" then
     return false
   -- Skip common resources (images, CSS, etc)
-  elseif string.match(url, "static%.myopera%.com/community") then
+  elseif string.match(url, "static%.myopera%.com/community") or string.match(
+   url, "static%.myopera%.com/favicon%.ico") then
     return false
+  -- Grab usercss content only once
+  -- (it adds up very quickly)
+  elseif string.match(url, "/%.?usercss/") then
+    if not dupe_urls[url] then
+        dupe_urls[url] = true
+        return true
+    else
+        return false
+    end
   -- Skip album slideshows
   elseif string.match(url, "/albums/slideshow/") then
     return false
