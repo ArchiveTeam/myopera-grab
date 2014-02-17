@@ -9,6 +9,7 @@ import urllib2
 import gzip
 import fnmatch
 import re
+import socket
 import sys
 from seesaw.config import NumberConfigValue, realize
 from seesaw.externalprocess import WgetDownload
@@ -64,7 +65,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140217.01"
+VERSION = "20140217.02"
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27'
 TRACKER_ID = 'myopera'
 HEADERS = {
@@ -317,6 +318,7 @@ project = Project(
 )
 
 pipeline = Pipeline(
+    CheckIP(),
     GetItemFromTracker("http://%s/%s" % (TRACKER_HOST, TRACKER_ID), downloader,
         VERSION),
     PrepareDirectories(warc_prefix="myopera"),
