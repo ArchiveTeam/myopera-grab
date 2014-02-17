@@ -64,7 +64,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140215.03"
+VERSION = "20140217.01"
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27'
 TRACKER_ID = 'myopera'
 HEADERS = {
@@ -186,6 +186,28 @@ def photolist(useruri):
 # Simple tasks (tasks that do not need any concurrency) are based on the
 # SimpleTask class and have a process(item) method that is called for
 # each item.
+class CheckIP(SimpleTask):
+    def __init__(self):
+        SimpleTask.__init__(self, "CheckIP")
+        self._counter = 0
+
+    def process(self, item):
+        # NEW for 2014! Check if we are behind firewall/proxy
+        ip_str = socket.gethostbyname('my.opera.com')
+        if ip_str != '195.189.143.107':
+            item.log_output('Got IP address: %s' % ip_str)
+            item.log_output(
+                'Are you behind a firewall/proxy? That is a big no-no!')
+            raise Exception(
+                'Are you behind a firewall/proxy? That is a big no-no!')
+
+        # Check only occasionally
+        if self._counter <= 0:
+            self._counter = 10
+        else:
+            self._counter -= 1
+
+
 class PrepareDirectories(SimpleTask):
     def __init__(self, warc_prefix):
         SimpleTask.__init__(self, "PrepareDirectories")
