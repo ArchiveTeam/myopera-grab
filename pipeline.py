@@ -65,7 +65,7 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140217.02"
+VERSION = "20140302.00"
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27'
 TRACKER_ID = 'myopera'
 HEADERS = {
@@ -264,9 +264,10 @@ wget_args = [
     "-e", "robots=off",
     "--rotate-dns",
     "--page-requisites",
-    "--timeout", "60",
+    "--timeout", "20",
     "--tries", "inf",
-    "--waitretry", "120",
+    "--retry-connrefused",
+    "--waitretry", "30",
     "--no-parent",
     "--span-hosts",
     "--domains", "my.opera.com,files.myopera.com,static.myopera.com",
